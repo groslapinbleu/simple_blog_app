@@ -1,6 +1,6 @@
 import createDataContext from './createDataContext';
 
-interface BlogPostInterface {
+export interface BlogPostInterface {
   id: number;
   title: string;
   content: string;
@@ -8,44 +8,64 @@ interface BlogPostInterface {
 
 interface ActionInterface {
   type: string;
-  payload?: number; // not used for a create, that's why is is optional
+  payload: BlogPostInterface;
 }
 
-const defaultBlogPosts: BlogPostInterface[] = [];
+const defaultBlogPosts: BlogPostInterface[] = [
+  {
+    id: 1,
+    title: 'a title',
+    content: 'some content',
+  },
+];
 
 function blogReducer(blogPosts: BlogPostInterface[], action: ActionInterface) {
+  console.log('blogReducer : type = ' + action.type);
+  console.log('blogReducer : payload = ' + action.payload);
+
   switch (action.type) {
     case 'add_blogPost':
-      return [
-        ...blogPosts,
-        {
-          id: Math.floor(Math.random() * 99999),
-          title: `Blog post #${blogPosts.length + 1}`,
-          content: 'Any content',
-        },
-      ];
+      return [...blogPosts, action.payload];
     case 'del_blogPost':
       // remove element
       return blogPosts.filter((value) => {
-        return value.id !== action.payload;
+        return value.id !== action.payload.id;
       });
+    case 'edit_blogPost':
+      const newBlogPosts = [...blogPosts];
+      const updatedPost = newBlogPosts.find((element) => {
+        return element.id === action.payload.id;
+      });
+      if (updatedPost) {
+        // Modify object property
+        updatedPost.title = action.payload.title;
+        updatedPost.content = action.payload.content;
+      }
+      return newBlogPosts;
     default:
       throw new Error();
   }
 }
 
 const addBlogPost = (dispatch: Function) => {
-  return () => {
-    dispatch({ type: 'add_blogPost' });
+  return (post: BlogPostInterface, callback: Function) => {
+    dispatch({ type: 'add_blogPost', payload: post });
+    callback();
+  };
+};
+const editBlogPost = (dispatch: Function) => {
+  return (post: BlogPostInterface, callback: Function) => {
+    dispatch({ type: 'edit_blogPost', payload: post });
+    callback();
   };
 };
 const delBlogPost = (dispatch: Function) => {
   return (id: number) => {
-    dispatch({ type: 'del_blogPost', payload: id });
+    dispatch({ type: 'del_blogPost', payload: { id } });
   };
 };
 export const { Context, Provider } = createDataContext(
   blogReducer,
-  { addBlogPost, delBlogPost },
+  { addBlogPost, delBlogPost, editBlogPost },
   defaultBlogPosts
 );
