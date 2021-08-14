@@ -50,13 +50,13 @@ function blogReducer(blogPosts: BlogPostInterface[], action: ActionInterface) {
 const addBlogPost = (dispatch: Function) => {
   return (post: BlogPostInterface, callback: Function) => {
     dispatch({ type: 'add_blogPost', payload: post });
-    callback();
+    if (callback) callback();
   };
 };
 const editBlogPost = (dispatch: Function) => {
   return (post: BlogPostInterface, callback: Function) => {
     dispatch({ type: 'edit_blogPost', payload: post });
-    callback();
+    if (callback) callback();
   };
 };
 const delBlogPost = (dispatch: Function) => {
