@@ -1,4 +1,5 @@
 import createDataContext from './createDataContext';
+import jsonServer from '../api/jsonServer';
 
 export interface BlogPostInterface {
   id: number;
@@ -11,13 +12,7 @@ interface ActionInterface {
   payload: BlogPostInterface;
 }
 
-const defaultBlogPosts: BlogPostInterface[] = [
-  {
-    id: 1,
-    title: 'a title',
-    content: 'some content',
-  },
-];
+const defaultBlogPosts: BlogPostInterface[] = [];
 
 function blogReducer(blogPosts: BlogPostInterface[], action: ActionInterface) {
   console.log('blogReducer : type = ' + action.type);
@@ -42,10 +37,19 @@ function blogReducer(blogPosts: BlogPostInterface[], action: ActionInterface) {
         updatedPost.content = action.payload.content;
       }
       return newBlogPosts;
+    case 'get_blogPosts':
+      return action.payload;
     default:
       throw new Error();
   }
 }
+
+const getBlogPosts = (dispatch: Function) => {
+  return async () => {
+    const response = await jsonServer.get('blogposts');
+    dispatch({ type: 'get_blogPosts', payload: response.data });
+  };
+};
 
 const addBlogPost = (dispatch: Function) => {
   return (post: BlogPostInterface, callback: Function) => {
@@ -66,6 +70,6 @@ const delBlogPost = (dispatch: Function) => {
 };
 export const { Context, Provider } = createDataContext(
   blogReducer,
-  { addBlogPost, delBlogPost, editBlogPost },
+  { addBlogPost, delBlogPost, editBlogPost, getBlogPosts },
   defaultBlogPosts
 );
