@@ -16,11 +16,8 @@ const defaultBlogPosts: BlogPostInterface[] = [];
 
 function blogReducer(blogPosts: BlogPostInterface[], action: ActionInterface) {
   console.log('blogReducer : type = ' + action.type);
-  console.log('blogReducer : payload = ' + action.payload);
-
   switch (action.type) {
-    case 'add_blogPost':
-      return [...blogPosts, action.payload];
+
     case 'del_blogPost':
       // remove element
       return blogPosts.filter((value) => {
@@ -60,7 +57,6 @@ const addBlogPost = (dispatch: Function) => {
   return async (post: BlogPostInterface, callback: Function) => {
     try {
       await jsonServer.post('/blogposts', { title: post.title, content: post.content })
-      dispatch({ type: 'add_blogPost', payload: post });
       if (callback) callback();
     } catch (e) {
       console.log(e)
@@ -68,14 +64,27 @@ const addBlogPost = (dispatch: Function) => {
   };
 };
 const editBlogPost = (dispatch: Function) => {
-  return (post: BlogPostInterface, callback: Function) => {
-    dispatch({ type: 'edit_blogPost', payload: post });
-    if (callback) callback();
+  return async (post: BlogPostInterface, callback: Function) => {
+
+    try {
+      await jsonServer.put(`/blogposts/${post.id}`, post)
+      dispatch({ type: 'edit_blogPost', payload: post });
+      if (callback) callback();
+    }
+    catch (e) {
+      console.log(e)
+    }
   };
 };
 const delBlogPost = (dispatch: Function) => {
-  return (id: number) => {
-    dispatch({ type: 'del_blogPost', payload: { id } });
+  return async (id: number) => {
+    try {
+      await jsonServer.delete(`/blogposts/${id}`)
+      dispatch({ type: 'del_blogPost', payload: { id } });
+
+    } catch (e) {
+      console.log(e)
+    }
   };
 };
 export const { Context, Provider } = createDataContext(
