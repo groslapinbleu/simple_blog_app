@@ -46,15 +46,25 @@ function blogReducer(blogPosts: BlogPostInterface[], action: ActionInterface) {
 
 const getBlogPosts = (dispatch: Function) => {
   return async () => {
-    const response = await jsonServer.get('blogposts');
-    dispatch({ type: 'get_blogPosts', payload: response.data });
+    try {
+      const response = await jsonServer.get('blogposts');
+      dispatch({ type: 'get_blogPosts', payload: response.data });
+    } catch (e) {
+      console.log(e)
+    }
+
   };
 };
 
 const addBlogPost = (dispatch: Function) => {
-  return (post: BlogPostInterface, callback: Function) => {
-    dispatch({ type: 'add_blogPost', payload: post });
-    if (callback) callback();
+  return async (post: BlogPostInterface, callback: Function) => {
+    try {
+      await jsonServer.post('/blogposts', { title: post.title, content: post.content })
+      dispatch({ type: 'add_blogPost', payload: post });
+      if (callback) callback();
+    } catch (e) {
+      console.log(e)
+    }
   };
 };
 const editBlogPost = (dispatch: Function) => {

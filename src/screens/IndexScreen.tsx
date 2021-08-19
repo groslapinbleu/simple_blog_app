@@ -16,8 +16,16 @@ interface IndexScreenProps {
 
 const IndexScreen = ({ navigation }: IndexScreenProps) => {
   const blogContext = useContext(BlogContext);
+
   useEffect(() => {
     blogContext.getBlogPosts();
+    const listener = navigation.addListener('didFocus', () => {
+      blogContext.getBlogPosts()
+
+    })
+    return () => {
+      listener.remove()
+    }
   }, []);
   return (
     <View>
